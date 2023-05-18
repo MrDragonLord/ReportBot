@@ -20,15 +20,16 @@ export const rops = async () => {
 
         ropName.value !== null && users.push([Markup.button.callback(ropName.value, `getStaff:${ropTableID.value}`)]) 
     }
+    users.push([Markup.button.callback('Вернуться', 'days')])
     return users
 }
 
 
-export const staffs = async (tableID,) => {
+export const staffs = async (tableID, day) => {
     const table = new GoogleSpreadsheet(tableID)
     await table.useServiceAccountAuth(json)
     await table.loadInfo()
-    const sheet = table.sheetsByIndex[0]
+    const sheet = table.sheetsByIndex[day-1]
     await sheet.loadCells('A1:J21')
 
     const users = []
@@ -36,6 +37,8 @@ export const staffs = async (tableID,) => {
         const cell = sheet.getCellByA1(`A${index}`)
         cell.value !== null && users.push([Markup.button.callback(cell.value, `editStaff:${cell.value}:${cell.rowIndex}`)]) 
     }
+    users.push([Markup.button.callback('Вернуться', `rop:${day}`)])
+
     return users
 }
 
@@ -50,17 +53,24 @@ export const getCellStaff = async (cell, day, tableID) => {
     const nullCells = []
     for (let index = 1; index < 10; index++) {
         const col = sheet.getCell(cell, index)
-        if(col.value === null) {
-            const nullCellName = sheet.getCell(0, index)
-            const user = sheet.getCell(cell, 0)
-            nullCells.push([Markup.button.callback(nullCellName.value, `${nullCellName.value}|${col.a1Column}${col.a1Row}|${user.value}|${cell}`)]) 
+        const nullCellName = sheet.getCell(0, index)
+        const user = sheet.getCell(cell, 0)
+        
+        col.value === null && nullCells.push([Markup.button.callback(nullCellName.value, `${nullCellName.value}|${col.a1Column}${col.a1Row}|${user.value}|${cell}|int`)]) 
+        const checkAdress = nullCellName.value === 'Презентации' || nullCellName.value === 'Договоры' || nullCellName.value === 'Сделки' || nullCellName.value === 'Задатки'
+
+        if (checkAdress && col.value >= 1 && col.note == null) {
+          nullCells.unshift([Markup.button.callback('Адрес ' + nullCellName.value, `${nullCellName.value}|${col.a1Column}${col.a1Row}|${user.value}|${cell}|string`)])
         }
     }
-    if(nullCells.length !== 0) return nullCells
+    if(nullCells.length !== 0) {
+        nullCells.push([Markup.button.callback('Вернуться', `getStaff:${tableID}`)])
+        return nullCells
+    }
     return false
 }
 
-export const editCell = async (cell, value, day, tableID) => {
+export const editCell = async (cell, value, day, tableID, type = 'int') => {
     const table = new GoogleSpreadsheet(tableID)
     await table.useServiceAccountAuth(json)
     await table.loadInfo()
@@ -68,7 +78,9 @@ export const editCell = async (cell, value, day, tableID) => {
     await sheet.loadCells('A1:J21')
 
     const col = sheet.getCellByA1(cell)
-    col.value = value
+    type === 'string' && (col.note = value)
+    type === 'int' && (col.value = +value)
+
     await col.save()
 }
 
