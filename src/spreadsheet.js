@@ -56,11 +56,14 @@ export const getCellStaff = async (cell, day, tableID) => {
         const nullCellName = sheet.getCell(0, index)
         const user = sheet.getCell(cell, 0)
         
-        col.value === null && nullCells.push([Markup.button.callback(nullCellName.value, `${nullCellName.value}|${col.a1Column}${col.a1Row}|${user.value}|${cell}|int`)]) 
-        const checkAdress = nullCellName.value === 'Презентации' || nullCellName.value === 'Договоры' || nullCellName.value === 'Сделки' || nullCellName.value === 'Задатки'
+        if(col.value == null) {
+            nullCells.push([Markup.button.callback(nullCellName.value, `${nullCellName.value}|${col.a1Column}${col.a1Row}|${user.value}|${cell}|int`)])
+            continue
+        }
+        const checkAdress = ['Презентации', 'Договоры', 'Сделки', 'Задатки'].includes(nullCellName.value)
 
         if (checkAdress && col.value >= 1 && col.note == null) {
-          nullCells.unshift([Markup.button.callback('Адрес ' + nullCellName.value, `${nullCellName.value}|${col.a1Column}${col.a1Row}|${user.value}|${cell}|string`)])
+          nullCells.unshift([Markup.button.callback('Адрес ' + nullCellName.note, `${nullCellName.value}|${col.a1Column}${col.a1Row}|${user.value}|${cell}|string`)])
         }
     }
     if(nullCells.length !== 0) {
