@@ -94,9 +94,9 @@ const editedCell = async (ctx, argumentValues) => {
 
     if(cellStaff) return await ctx.reply(`У ${argumentValues[2]} не заполнены такие поля:`, Markup.inlineKeyboard(cellStaff))
 
-    return Promise.all([
-      !cellStaff ? ctx.telegram.sendMessage(ctx.message.chat.id, 'Отчет успешно сдан!') : null,
-      !cellStaff ? ctx.telegram.sendMessage(ctx.message.chat.id, otchet) : null,
+    return await Promise.all([
+      ctx.telegram.sendMessage(ctx.message.chat.id, 'Отчет успешно сдан!'),
+      ctx.telegram.sendMessage(ctx.message.chat.id, otchet)
     ]).then(() => ctx.scene.leave())
 }
 
@@ -108,10 +108,11 @@ const stage = new Scenes.Stage([otchetScene], {
 bot.use(session(), stage.middleware())
 
 bot.command('otchet', ctx => ctx.scene.enter('otchet'))
+bot.hears('Ежедневный отчет', ctx => ctx.scene.enter('otchet'))
 
 bot.command('start', async ctx => {
     return await ctx.reply('Добро пожаловать!', Markup
-    .keyboard(['/otchet'])
+    .keyboard(['Ежедневный отчет'])
     .resize()
   )
 })
