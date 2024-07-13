@@ -2,13 +2,13 @@
   "name": "otchetbot",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "src/app.js",
   "scripts": {
     "dev": "nodemon ./src/app.js",
     "start": "node ./src/app.js"
   },
   "keywords": [],
-  "author": "MrDragonLord",
+  "author": "Mikhail Ozornin <ozornim@gmail.com> (https://t.me/wellavri)",
   "license": "MIT",
   "dependencies": {
     "cron": "^2.3.0",

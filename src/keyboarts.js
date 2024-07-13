@@ -9,9 +9,11 @@ for (let index = 1; index < daysInMonth() + 1; index++) {
 }
 
 export const days = Markup.inlineKeyboard(listDays.reduce((memo, value, index) => {
-    if (index % 5 === 0 && index !== 0) memo.push([])
+    if (index % 4 === 0 && index !== 0) memo.push([])
     memo[memo.length - 1].push(value)
     return memo
-  }, [[]]))
+}, [[]]))
 
-export const rop = Markup.inlineKeyboard(await rops())
+const [ropsList, status] = await rops()
+
+export const rop = status ? Markup.inlineKeyboard(ropsList) : status
